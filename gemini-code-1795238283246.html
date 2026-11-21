@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المصروفات والعهد المالية - أسرة الأنبا ابرام</title>
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="مصروفات القافلة">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            margin: 0;
+            padding: 18px;
+        }
+        .container { max-width: 1180px; margin: auto; }
+        .header {
+            text-align: center;
+            padding: 24px 18px;
+            background: linear-gradient(135deg, rgba(37,99,235,0.18), rgba(16,185,129,0.15));
+            border-radius: 20px;
+            border: 1px solid #1e40af;
+            margin-bottom: 22px;
+        }
+        .header h1 { margin: 0; color: #38bdf8; font-size: 1.65em; }
+        .header p { margin: 6px 0 0; color: #94a3b8; font-weight: 600; }
+
+        .mode-switcher {
+            display: flex;
+            gap: 10px;
+            background: #1e293b;
+            padding: 8px;
+            border-radius: 16px;
+            border: 1px solid #334155;
+            max-width: 520px;
+            margin: 0 auto 25px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Cairo';
+            font-weight: 700;
+            font-size: 1em;
+            cursor: pointer;
+            background: transparent;
+            color: #94a3b8;
+            transition: all 0.25s;
+        }
+        .mode-btn.active {
+            background: linear-gradient(135deg, #2563eb, #10b981);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(37,99,235,0.35);
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 18px;
+            padding: 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        }
+        .card h3 { margin-top: 0; color: #38bdf8; font-size: 1.2em; }
+
+        .login-box { max-width: 440px; margin: 10px auto; }
+        label { display: block; margin-bottom: 6px; color: #cbd5e1; font-weight: 700; font-size: 0.93em; }
+        input[type="text"], input[type="password"], input[type="number"], input[type="file"], select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 2px solid #334155;
+            background: #0f172a;
+            color: #fff;
+            font-family: 'Cairo';
+            font-size: 0.98em;
+            margin-bottom: 14px;
+        }
+        input:focus, select:focus { outline: none; border-color: #38bdf8; }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            color: #cbd5e1;
+            font-weight: 700;
+            font-size: 0.92em;
+        }
+        .checkbox-row input { width: 18px; height: 18px; margin: 0; }
+
+        .btn {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Cairo';
+            font-weight: 700;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+        .btn-primary { background: linear-gradient(135deg, #2563eb, #10b981); color: #fff; width: 100%; }
+        .btn-blue { background: #3b82f6; color: #fff; }
+        .btn-green { background: #10b981; color: #fff; }
+        .btn-amber { background: #f59e0b; color: #0f172a; }
+        .btn-red { background: #ef4444; color: #fff; }
+        .btn-purple { background: #8b5cf6; color: #fff; }
+        .btn-sm { padding: 7px 12px; font-size: 0.85em; border-radius: 9px; }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+        .kpi-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 18px;
+            text-align: center;
+        }
+        .kpi-title { color: #94a3b8; font-size: 0.86em; font-weight: 700; margin-bottom: 6px; }
+        .kpi-val { font-size: 1.5em; font-weight: 800; }
+        .val-blue { color: #38bdf8; }
+        .val-amber { color: #fbbf24; }
+        .val-green { color: #34d399; }
+        .val-red { color: #f87171; }
+        .val-purple { color: #c084fc; }
+
+        .pool-info-pill {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid #10b981;
+            color: #6ee7b7;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.88em;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+        .limit-warn-box {
+            background: rgba(239, 68, 68, 0.14);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.86em;
+            font-weight: 700;
+            margin-top: -6px;
+            margin-bottom: 12px;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+            gap: 20px;
+        }
+
+        .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #334155; }
+        table { width: 100%; border-collapse: collapse; background: #1e293b; font-size: 0.91em; }
+        th, td { padding: 12px 10px; text-align: center; border-bottom: 1px solid #334155; white-space: nowrap; }
+        th { background: #0f172a; color: #38bdf8; }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.82em;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .badge-active { background: rgba(16,185,129,0.18); color: #34d399; border: 1px solid #10b981; }
+        .badge-settled { background: rgba(245,158,11,0.18); color: #fbbf24; border: 1px solid #f59e0b; }
+        .badge-dept { background: #0f172a; color: #38bdf8; border: 1px solid #334155; }
+
+        .receipt-link {
+            color: #38bdf8;
+            font-weight: 700;
+            text-decoration: none;
+            background: rgba(56,189,248,0.12);
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid #0284c7;
+            display: inline-block;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .sub-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .sub-tab {
+            background: #0f172a;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            padding: 9px 15px;
+            border-radius: 10px;
+            font-family: 'Cairo';
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .sub-tab.active { background: #2563eb; color: #fff; border-color: #60a5fa; }
+
+        .pass-pill {
+            background: #0f172a;
+            border: 1px dashed #475569;
+            padding: 4px 9px;
+            border-radius: 7px;
+            font-family: monospace;
+            color: #fbbf24;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .pass-masked {
+            background: #0f172a;
+            border: 1px solid #334155;
+            padding: 4px 9px;
+            border-radius: 7px;
+            font-family: monospace;
+            color: #64748b;
+            display: inline-block;
+            letter-spacing: 2px;
+        }
+        .err-msg { color: #f87171; font-weight: 700; margin-top: 10px; text-align: center; }
+        .hidden { display: none !important; }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.78);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 9999;
+        }
+        .modal-card {
+            background: #1e293b;
+            border: 1px solid #38bdf8;
+            border-radius: 18px;
+            padding: 22px;
+            width: 100%;
+            max-width: 430px;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        #printableArchiveArea { display: none; }
+
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #111827 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .container, .header, .mode-switcher, #userPortal, #adminPortal, .modal-backdrop {
+                display: none !important;
+            }
+            #printableArchiveArea {
+                display: block !important;
+                padding: 20px;
+                direction: rtl;
+                font-family: 'Cairo', sans-serif;
+                color: #111827;
+            }
+            .print-header {
+                border-bottom: 2px solid #1e3a8a;
+                padding-bottom: 12px;
+                margin-bottom: 18px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+            .print-header h2 {
+                margin: 0;
+                color: #1e3a8a;
+                font-size: 1.45em;
+            }
+            .print-meta {
+                font-size: 0.9em;
+                color: #4b5563;
+                margin-top: 4px;
+            }
+            .print-total-box {
+                background: #f3f4f6;
+                border: 1px solid #d1d5db;
+                padding: 8px 14px;
+                border-radius: 8px;
+                font-weight: 800;
+                color: #111827;
+            }
+            .print-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.9em;
+            }
+            .print-table th, .print-table td {
+                border: 1px solid #9ca3af;
+                padding: 8px 10px;
+                text-align: center;
+                color: #111827;
+                white-space: normal;
+            }
+            .print-table th {
+                background: #e5e7eb;
+                font-weight: 800;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>💰 منظومة إدارة المصروفات والعهد المالية</h1>
+        <p>أسرة الأنبا ابرام — متابعة العهد، تسجيل الفواتير، وتصفية الحسابات</p>
+    </div>
+
+    <div class="mode-switcher">
+        <button id="tabUserBtn" class="mode-btn active" onclick="switchPortal('user')">💳 بوابة صرف الخدام</button>
+        <button id="tabAdminBtn" class="mode-btn" onclick="switchPortal('admin')">🔐 لوحة تحكم الأدمن</button>
+    </div>
+
+    <!-- ==================== 1. بوابة اليوزر / الخدام ==================== -->
+    <div id="userPortal">
+        <div id="userLoginCard" class="card login-box">
+            <h3>🔑 الدخول إلى عهدة القسم</h3>
+            <label>اختر القسم:</label>
+            <select id="userDeptSelect">
+                <option value="">⏳ جاري تحميل الأقسام...</option>
+            </select>
+
+            <label>كلمة المرور الخاصة بالقسم:</label>
+            <input type="password" id="userDeptPass" placeholder="أدخل كلمة مرور القسم..." onkeypress="if(event.key==='Enter') loginUserDept()">
+
+            <button id="userLoginBtn" class="btn btn-primary" onclick="loginUserDept()">دخول للقسم</button>
+            <div id="userLoginErr" class="err-msg hidden"></div>
+        </div>
+
+        <div id="userDashboard" class="hidden">
+            <div class="top-bar-actions">
+                <div>
+                    <span style="color:#94a3b8; font-size:0.9em;">القسم الحالي:</span>
+                    <strong id="activeDeptTitle" style="color:#38bdf8; font-size:1.35em; margin-right:6px;">-</strong>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-blue btn-sm" onclick="refreshUserDept()">🔄 تحديث الرصيد</button>
+                    <button class="btn btn-red btn-sm" onclick="logoutUserDept()">🚪 تغيير القسم</button>
+                </div>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-title">💰 إجمالي العهدة (الليميت المخصص)</div>
+                    <div id="uCustodyVal" class="kpi-val val-blue">0 ج.م</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">💸 إجمالي المصروف</div>
+                    <div id="uSpentVal" class="kpi-val val-amber">0 ج.م</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">✅ المتبقي في العهدة</div>
+                    <div id="uRemainVal" class="kpi-val val-green">0 ج.م</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🧾 تسجيل طلب مصروفات ورفع الفاتورة</h3>
+                <div class="two-col">
+                    <div>
+                        <label>اسم الخادم *:</label>
+                        <input type="text" id="expServant" placeholder="اكتب اسم الخادم...">
+                    </div>
+                    <div>
+                        <label>المبلغ المصروف (ج.م) *:</label>
+                        <input type="number" id="expAmount" min="0.5" step="0.5" placeholder="مثال: 250">
+                    </div>
+                </div>
+                <label>الحاجة التي تم الصرف فيها (بيان المصروف) *:</label>
+                <input type="text" id="expDesc" placeholder="مثال: شراء أدوات / خامات / انتقالات...">
+
+                <label>صورة الفاتورة *:</label>
+                <input type="file" id="expReceiptFile" accept="image/*" onchange="previewReceipt(this)">
+                <div id="receiptPreviewBox" class="hidden" style="margin-bottom:14px; text-align:center;">
+                    <img id="receiptPreviewImg" style="max-height:160px; border-radius:12px; border:2px solid #38bdf8;">
+                </div>
+
+                <button id="submitExpBtn" class="btn btn-primary" onclick="submitExpense()">💾 حفظ المصروف وخصمه من العهدة</button>
+            </div>
+
+            <div class="card">
+                <h3>📋 سجل مصروفات القسم الحالية</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اسم الخادم</th>
+                                <th>المبلغ المصروف</th>
+                                <th>الحاجة المصروف فيها</th>
+                                <th>صورة الفاتورة</th>
+                                <th>التاريخ والوقت</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userExpensesBody">
+                            <tr><td colspan="5">لا توجد مصروفات مسجلة حالياً.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 2. لوحة تحكم الأدمن ==================== -->
+    <div id="adminPortal" class="hidden">
+        <div id="adminLoginCard" class="card login-box">
+            <h3>🔐 دخول لوحة تحكم الأدمن</h3>
+            <label>كلمة مرور الأدمن:</label>
+            <input type="password" id="adminPassInput" placeholder="أدخل كلمة مرور الأدمن..." onkeypress="if(event.key==='Enter') loginAdmin()">
+            <button id="adminLoginBtn" class="btn btn-primary" onclick="loginAdmin()">دخول الأدمن</button>
+            <div id="adminLoginErr" class="err-msg hidden"></div>
+        </div>
+
+        <div id="adminDashboard" class="hidden">
+            <div class="top-bar-actions">
+                <h2 style="margin:0; color:#38bdf8;">📊 لوحة الإدارة المالية الشاملة (للأدمن فقط)</h2>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button class="btn btn-green btn-sm" onclick="openAddCustodyModal()">➕ إضافة مبلغ للعهدة</button>
+                    <button class="btn btn-blue btn-sm" onclick="loadAdminDashboard()">🔄 تحديث البيانات</button>
+                    <button class="btn btn-red btn-sm" onclick="logoutAdmin()">🚪 قفل الأدمن</button>
+                </div>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-title">💰 إجمالي العهدة النشطة للأيام الحالية</div>
+                    <div id="aTotalCustody" class="kpi-val val-blue">0 ج.م</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">💼 المتاح في إجمالي العهدة للسحب للأقسام</div>
+                    <div id="aGeneralAvailable" class="kpi-val val-green">0 ج.م</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">💸 إجمالي المصروفات النشطة للأيام الحالية</div>
+                    <div id="aTotalActiveSpent" class="kpi-val val-amber">0 ج.م</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">✅ إجمالي المتبقي بالأقسام (الأيام الحالية)</div>
+                    <div id="aTotalRemain" class="kpi-val val-green">0 ج.م</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">🏦 إجمالي التوريدات السنوية للقافلة</div>
+                    <div id="aTotalHistTopups" class="kpi-val val-blue">0 ج.م</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">🏛️ إجمالي المصروفات السنوية للقافلة</div>
+                    <div id="aTotalHistSpent" class="kpi-val val-purple">0 ج.م</div>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div class="card">
+                    <h3>➕ إنشاء شيت قسم جديد بباسوورد مخصص</h3>
+                    <div class="pool-info-pill">
+                        💡 الحد الأقصى المسموح بسحبه للقسم من إجمالي العهدة: <strong id="poolHint1">0 ج.م</strong>
+                    </div>
+                    <label>اسم الشيت / القسم الجديد:</label>
+                    <input type="text" id="newDeptName" placeholder="مثال: رحلة الصيف / لجنة النظام...">
+                    <label>كلمة المرور الخاصة بالقسم (Unique):</label>
+                    <input type="text" id="newDeptPass" placeholder="مثال: summer2026">
+                    <label>المبلغ المخصص للشيت من إجمالي العهدة (ج.م):</label>
+                    <input type="number" id="newDeptCustody" min="0" step="10" placeholder="مثال: 3000" oninput="validatePoolBounds()">
+                    <div id="newDeptLimitWarn" class="limit-warn-box hidden"></div>
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="newDeptEnforce" checked>
+                        <span>منع اليوزر من تجاوز ليميت العهدة المحدد</span>
+                    </label>
+                    <button id="createDeptBtn" class="btn btn-green" style="width:100%;" onclick="createDepartment()">✨ إنشاء الشيت وسحب العهدة من الإجمالي</button>
+                </div>
+
+                <div class="card">
+                    <h3>➕ إضافة مبلغ لشيت القسم (خاص بالشيت ويُخصم من الإجمالي)</h3>
+                    <div class="pool-info-pill">
+                        🔒 الحد الأقصى المتاح للسحب للأقسام حالياً: <strong id="poolHint2">0 ج.م</strong>
+                    </div>
+                    <label>اختر شيت القسم (مثل المخزن وغيره):</label>
+                    <select id="topupDeptSelect"></select>
+                    <label>المبلغ المراد إضافته للشيت (يُخصم من إجمالي العهدة) *:</label>
+                    <input type="number" id="topupAmount" min="1" step="10" placeholder="مثال: 2000" oninput="validatePoolBounds()">
+                    <div id="topupLimitWarn" class="limit-warn-box hidden"></div>
+                    <label>ملاحظات (اختياري):</label>
+                    <input type="text" id="topupNote" placeholder="مثال: عهدة شراء مستلزمات المخزن">
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="editDeptEnforce" checked>
+                        <span>قفل الصرف عند الوصول للحد الأقصى (منع التجاوز)</span>
+                    </label>
+                    <button id="addCustodyBtn" class="btn btn-blue" style="width:100%;" onclick="addAmountToDeptSheet()">➕ إضافة مبلغ للشيت (خصم من إجمالي العهدة)</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                    <h3 style="margin:0;">🏢 توتال كل قسم لوحده والتحكم في التصفية</h3>
+                    <button id="togglePasswordsBtn" class="btn btn-blue btn-sm" onclick="togglePasswordsVisibility()">👁️ إظهار الباسوردز</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>القسم / الشيت</th>
+                                <th>باسوورد الشيت</th>
+                                <th>ليميت العهدة الحالي</th>
+                                <th>المصروف الحالي</th>
+                                <th>المتبقي</th>
+                                <th>قفل الليمت</th>
+                                <th>إجمالي التوريدات السنوية للقافلة</th>
+                                <th>إجمالي المصروفات السنوية للقافلة</th>
+                                <th>الحالة</th>
+                                <th>إنهاء الحسابات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminDeptsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="sub-tabs">
+                    <button class="sub-tab active" onclick="switchAdminSubTab('active', this)">🧾 المصروفات النشطة</button>
+                    <button class="sub-tab" onclick="switchAdminSubTab('archive', this)">🗂️ الأرشيف المالي (الأقسام المنتهية)</button>
+                    <button class="sub-tab" onclick="switchAdminSubTab('topups', this)">📥 سجل التوريدات والليميت</button>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+                    <div style="min-width:240px; max-width:320px; flex:1;">
+                        <select id="adminDeptFilter" style="margin-bottom:0;" onchange="renderAdminLogs()">
+                            <option value="ALL">عرض كل الأقسام</option>
+                        </select>
+                    </div>
+                    <button id="printArchivePdfBtn" class="btn btn-purple btn-sm hidden" onclick="printArchiveWithoutSerial()">
+                        🖨️ طباعة / حفظ PDF للأرشيف (بدون سيريال)
+                    </button>
+                </div>
+
+                <div id="subTabActive" class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>القسم</th>
+                                <th>اسم الخادم</th>
+                                <th>المبلغ</th>
+                                <th>الحاجة المصروف فيها</th>
+                                <th>الفاتورة</th>
+                                <th>التاريخ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminActiveExpBody"></tbody>
+                    </table>
+                </div>
+
+                <div id="subTabArchive" class="table-wrap hidden">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>رقم التصفية</th>
+                                <th>القسم</th>
+                                <th>اسم الخادم</th>
+                                <th>المبلغ</th>
+                                <th>الحاجة المصروف فيها</th>
+                                <th>الفاتورة</th>
+                                <th>تاريخ الصرف</th>
+                                <th>تاريخ التصفية</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminArchiveBody"></tbody>
+                    </table>
+                </div>
+
+                <div id="subTabTopups" class="table-wrap hidden">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>التاريخ والوقت</th>
+                                <th>القسم</th>
+                                <th>نوع الحركة</th>
+                                <th>المبلغ</th>
+                                <th>ملاحظات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTopupsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة إضافة مبلغ لإجمالي العهدة (المصدر الوحيد لزيادة الإجمالي) -->
+<div id="addCustodyModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeAddCustodyModal()">
+    <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="margin:0; color:#34d399;">➕ إضافة مبلغ لإجمالي العهدة</h3>
+            <button class="btn btn-red btn-sm" onclick="closeAddCustodyModal()">✕</button>
+        </div>
+        <p style="color:#94a3b8; font-size:0.88em; margin-top:0;">
+            هذا الزر فقط يضيف رصيداً جديداً إلى إجمالي العهدة، ومنه يتم السحب لشيتات الأقسام لاحقاً.
+        </p>
+
+        <label>المبلغ المراد إضافته في إجمالي العهدة (ج.م) *:</label>
+        <input type="number" id="modalCustodyAmount" min="1" step="10" placeholder="مثال: 5000" onkeypress="if(event.key==='Enter') submitSingleAddCustody()">
+
+        <label>ملاحظات (اختياري):</label>
+        <input type="text" id="modalCustodyNote" placeholder="مثال: توريد عهدة القافلة" onkeypress="if(event.key==='Enter') submitSingleAddCustody()">
+
+        <button id="modalSubmitCustodyBtn" class="btn btn-green" style="width:100%;" onclick="submitSingleAddCustody()">➕ إضافة مبلغ للعهدة</button>
+    </div>
+</div>
+
+<!-- نسخة الطباعة المخصصة للأرشيف المالي بدون رقم التصفية/السيريال -->
+<div id="printableArchiveArea">
+    <div class="print-header">
+        <div>
+            <h2>تقرير الأرشيف المالي السنوي للقافلة — أسرة الأنبا ابرام</h2>
+            <div id="printMetaText" class="print-meta"></div>
+        </div>
+        <div id="printTotalBox" class="print-total-box"></div>
+    </div>
+    <table class="print-table">
+        <thead>
+            <tr>
+                <th>القسم</th>
+                <th>اسم الخادم</th>
+                <th>المبلغ</th>
+                <th>الحاجة المصروف فيها</th>
+                <th>الفاتورة</th>
+                <th>تاريخ الصرف</th>
+                <th>تاريخ التصفية</th>
+            </tr>
+        </thead>
+        <tbody id="printArchiveBody"></tbody>
+    </table>
+</div>
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyjz-cJvhfAe0Vu-xB1Qo8Sb3HRVGqGVnTxtQ-GMYJryK69giHGJzCdfGpQQrsdmYvQ/exec';
+    const GENERAL_CUSTODY_KEY = 'العهدة العامة للقافلة';
+
+    let userSession = null;
+    let adminPassSession = sessionStorage.getItem('kafela_exp_admin') || '';
+    let adminCache = { departments: [], activeExpenses: [], archive: [], topups: [] };
+    let compressedReceiptBase64 = '';
+    let compressedReceiptName = '';
+    let showDeptPasswords = false;
+
+    const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const fmtMoney = n => (Number(n) || 0).toLocaleString('ar-EG') + ' ج.م';
+
+    function switchPortal(mode) {
+        document.getElementById('tabUserBtn').classList.toggle('active', mode === 'user');
+        document.getElementById('tabAdminBtn').classList.toggle('active', mode === 'admin');
+        document.getElementById('userPortal').classList.toggle('hidden', mode !== 'user');
+        document.getElementById('adminPortal').classList.toggle('hidden', mode !== 'admin');
+        if (mode === 'admin' && adminPassSession) {
+            loadAdminDashboard();
+        }
+    }
+
+    async function fetchPublicDepartments() {
+        const sel = document.getElementById('userDeptSelect');
+        try {
+            const res = await fetch(SCRIPT_URL + '?action=getDepartments');
+            const data = await res.json();
+            if (data.ok && Array.isArray(data.departments)) {
+                const visibleDepts = data.departments.filter(d => d.name !== GENERAL_CUSTODY_KEY);
+                sel.innerHTML = '<option value="">-- اختر القسم --</option>' +
+                    visibleDepts.map(d => `<option value="${esc(d.name)}">${esc(d.name)}</option>`).join('');
+            } else {
+                sel.innerHTML = '<option value="">تعذر تحميل الأقسام</option>';
+            }
+        } catch (e) {
+            sel.innerHTML = '<option value="">تأكد من صلاحيات النشر (Anyone)</option>';
+        }
+    }
+
+    async function loginUserDept() {
+        const dept = document.getElementById('userDeptSelect').value;
+        const pass = document.getElementById('userDeptPass').value.trim();
+        const errEl = document.getElementById('userLoginErr');
+        const btn = document.getElementById('userLoginBtn');
+
+        errEl.classList.add('hidden');
+        if (!dept || !pass) {
+            errEl.textContent = '⚠️ اختر القسم وأدخل كلمة المرور الخاصة به.';
+            errEl.classList.remove('hidden');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = '⏳ جاري التحقق...';
+
+        try {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'userLogin', department: dept, password: pass })
+            });
+            const data = await res.json();
+            if (!data.ok) {
+                errEl.textContent = '❌ ' + (data.error || 'بيانات الدخول غير صحيحة');
+                errEl.classList.remove('hidden');
+            } else {
+                userSession = { department: dept, password: pass };
+                renderUserDashboard(data.summary, data.expenses);
+            }
+        } catch (e) {
+            errEl.textContent = '⚠️ خطأ في الاتصال بالسيرفر.';
+            errEl.classList.remove('hidden');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'دخول للقسم';
+        }
+    }
+
+    async function refreshUserDept() {
+        if (!userSession) return;
+        const res = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'userLogin', department: userSession.department, password: userSession.password })
+        });
+        const data = await res.json();
+        if (data.ok) renderUserDashboard(data.summary, data.expenses);
+    }
+
+    function renderUserDashboard(summary, expenses) {
+        document.getElementById('userLoginCard').classList.add('hidden');
+        document.getElementById('userDashboard').classList.remove('hidden');
+
+        document.getElementById('activeDeptTitle').textContent = summary.name;
+
+        document.getElementById('uCustodyVal').textContent = fmtMoney(summary.activeCustody);
+        document.getElementById('uSpentVal').textContent = fmtMoney(summary.activeSpent);
+        const remEl = document.getElementById('uRemainVal');
+        remEl.textContent = fmtMoney(summary.remaining);
+        remEl.className = 'kpi-val ' + (summary.remaining < 0 ? 'val-red' : 'val-green');
+
+        const tbody = document.getElementById('userExpensesBody');
+        if (!expenses || expenses.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="color:#94a3b8;">لا توجد مصروفات نشطة مسجلة لهذا القسم حالياً.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = expenses.map(e => `
+            <tr>
+                <td style="font-weight:700; color:#38bdf8;">${esc(e.servantName)}</td>
+                <td style="font-weight:700; color:#fbbf24;">${fmtMoney(e.amount)}</td>
+                <td>${esc(e.description)}</td>
+                <td>${e.receiptUrl ? `<a href="${esc(e.receiptUrl)}" target="_blank" class="receipt-link">عرض الفاتورة 🖼️</a>` : '-'}</td>
+                <td style="color:#94a3b8; font-size:0.88em;">${esc(e.date)}</td>
+            </tr>
+        `).join('');
+    }
+
+    function logoutUserDept() {
+        userSession = null;
+        document.getElementById('userDeptPass').value = '';
+        document.getElementById('userDashboard').classList.add('hidden');
+        document.getElementById('userLoginCard').classList.remove('hidden');
+        fetchPublicDepartments();
+    }
+
+    function previewReceipt(input) {
+        const file = input.files && input.files[0];
+        if (!file) {
+            compressedReceiptBase64 = '';
+            document.getElementById('receiptPreviewBox').classList.add('hidden');
+            return;
+        }
+        compressedReceiptName = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+        const reader = new FileReader();
+        reader.onload = ev => {
+            const img = new Image();
+            img.onload = () => {
+                const maxW = 1200;
+                const scale = img.width > maxW ? maxW / img.width : 1;
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.round(img.width * scale);
+                canvas.height = Math.round(img.height * scale);
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                compressedReceiptBase64 = canvas.toDataURL('image/jpeg', 0.78);
+                document.getElementById('receiptPreviewImg').src = compressedReceiptBase64;
+                document.getElementById('receiptPreviewBox').classList.remove('hidden');
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async function submitExpense() {
+        if (!userSession) return;
+        const servantName = document.getElementById('expServant').value.trim();
+        const amount = parseFloat(document.getElementById('expAmount').value);
+        const description = document.getElementById('expDesc').value.trim();
+        const btn = document.getElementById('submitExpBtn');
+
+        if (!servantName) { alert('⚠️ يرجى إدخال اسم الخادم.'); return; }
+        if (isNaN(amount) || amount <= 0) { alert('⚠️ يرجى إدخال مبلغ صحيح.'); return; }
+        if (!description) { alert('⚠️ يرجى إدخال الحاجة التي تم الصرف فيها.'); return; }
+        if (!compressedReceiptBase64) { alert('⚠️ يرجى إرفاق صورة الفاتورة.'); return; }
+
+        btn.disabled = true;
+        btn.textContent = '⏳ جاري حفظ المصروف ورفع الفاتورة...';
+
+        try {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'addExpense',
+                    department: userSession.department,
+                    password: userSession.password,
+                    servantName,
+                    amount,
+                    description,
+                    imageBase64: compressedReceiptBase64,
+                    imageName: compressedReceiptName,
+                    imageType: 'image/jpeg'
+                })
+            });
+            const data = await res.json();
+            if (!data.ok) {
+                alert('⚠️ ' + (data.error || 'حدث خطأ أثناء الحفظ'));
+            } else {
+                alert('✅ تم تسجيل المصروف وخصمه من العهدة بنجاح!');
+                document.getElementById('expAmount').value = '';
+                document.getElementById('expDesc').value = '';
+                document.getElementById('expReceiptFile').value = '';
+                compressedReceiptBase64 = '';
+                document.getElementById('receiptPreviewBox').classList.add('hidden');
+                renderUserDashboard(data.summary, data.expenses);
+            }
+        } catch (e) {
+            alert('⚠️ تعذر الاتصال بالسيرفر.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '💾 حفظ المصروف وخصمه من العهدة';
+        }
+    }
+
+    async function loginAdmin() {
+        const pass = document.getElementById('adminPassInput').value.trim();
+        const errEl = document.getElementById('adminLoginErr');
+        const btn = document.getElementById('adminLoginBtn');
+        errEl.classList.add('hidden');
+
+        if (!pass) return;
+        btn.disabled = true;
+        btn.textContent = '⏳ جاري التحقق...';
+
+        adminPassSession = pass;
+        const ok = await loadAdminDashboard();
+        if (!ok) {
+            adminPassSession = '';
+            sessionStorage.removeItem('kafela_exp_admin');
+            errEl.textContent = '❌ كلمة مرور الأدمن غير صحيحة';
+            errEl.classList.remove('hidden');
+        } else {
+            sessionStorage.setItem('kafela_exp_admin', pass);
+        }
+        btn.disabled = false;
+        btn.textContent = 'دخول الأدمن';
+    }
+
+    async function loadAdminDashboard() {
+        try {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'adminData', adminPass: adminPassSession })
+            });
+            const data = await res.json();
+            if (!data.ok) return false;
+
+            adminCache = data;
+            document.getElementById('adminLoginCard').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.remove('hidden');
+            renderAdminAll();
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function getGeneralPoolAvailable() {
+        const generalDept = (adminCache.departments || []).find(d => d.name === GENERAL_CUSTODY_KEY);
+        return generalDept ? Math.max(0, Number(generalDept.remaining) || 0) : 0;
+    }
+
+    function validatePoolBounds() {
+        const available = getGeneralPoolAvailable();
+
+        // 1. فحص خانة إضافة مبلغ لشيت القسم
+        const topupInput = document.getElementById('topupAmount');
+        const topupWarn = document.getElementById('topupLimitWarn');
+        const addBtn = document.getElementById('addCustodyBtn');
+        const topupVal = parseFloat(topupInput.value) || 0;
+
+        if (available <= 0) {
+            topupWarn.textContent = '⚠️ الرصيد المتاح في إجمالي العهدة للسحب للأقسام = 0 ج.م. أضف مبلغاً للعهدة أولاً.';
+            topupWarn.classList.remove('hidden');
+            addBtn.disabled = true;
+        } else if (topupVal > available) {
+            topupWarn.textContent = `❌ لا يمكن سحب ${fmtMoney(topupVal)}! الحد الأقصى المتاح للسحب للأقسام هو ${fmtMoney(available)} فقط.`;
+            topupWarn.classList.remove('hidden');
+            addBtn.disabled = true;
+        } else {
+            topupWarn.classList.add('hidden');
+            addBtn.disabled = false;
+        }
+
+        // 2. فحص خانة إنشاء قسم جديد
+        const newInput = document.getElementById('newDeptCustody');
+        const newWarn = document.getElementById('newDeptLimitWarn');
+        const createBtn = document.getElementById('createDeptBtn');
+        const newVal = parseFloat(newInput.value) || 0;
+
+        if (newVal > available) {
+            newWarn.textContent = `❌ لا يمكن تخصيص ${fmtMoney(newVal)}! الحد الأقصى المتاح للسحب للأقسام هو ${fmtMoney(available)} فقط.`;
+            newWarn.classList.remove('hidden');
+            createBtn.disabled = true;
+        } else {
+            newWarn.classList.add('hidden');
+            createBtn.disabled = false;
+        }
+    }
+
+    function togglePasswordsVisibility() {
+        showDeptPasswords = !showDeptPasswords;
+        const btn = document.getElementById('togglePasswordsBtn');
+        btn.textContent = showDeptPasswords ? '🙈 إخفاء الباسوردز' : '👁️ إظهار الباسوردز';
+        renderAdminAll();
+    }
+
+    function renderAdminAll() {
+        const allDepts = (adminCache.departments || []).filter(d => d.password && String(d.password).trim() !== '');
+        const actualDepts = allDepts.filter(d => d.name !== GENERAL_CUSTODY_KEY);
+        const generalDept = allDepts.find(d => d.name === GENERAL_CUSTODY_KEY);
+
+        const generalAvailable = getGeneralPoolAvailable();
+        const deptsCustodySum = actualDepts.reduce((s, d) => s + (Number(d.activeCustody) || 0), 0);
+        const totCustody = deptsCustodySum + generalAvailable;
+        const totActiveSpent = actualDepts.reduce((s, d) => s + (Number(d.activeSpent) || 0), 0);
+        const totRemain = actualDepts.reduce((s, d) => s + (Number(d.remaining) || 0), 0);
+        const totHistTopups = generalDept ? Math.max(totCustody, Number(generalDept.historicalCustody) || 0) : totCustody;
+        const totHistSpent = actualDepts.reduce((s, d) => s + (Number(d.historicalSpent) || 0), 0);
+
+        document.getElementById('aTotalCustody').textContent = fmtMoney(totCustody);
+        document.getElementById('aGeneralAvailable').textContent = fmtMoney(generalAvailable);
+        document.getElementById('aTotalActiveSpent').textContent = fmtMoney(totActiveSpent);
+        document.getElementById('aTotalRemain').textContent = fmtMoney(totRemain);
+        document.getElementById('aTotalHistTopups').textContent = fmtMoney(totHistTopups);
+        document.getElementById('aTotalHistSpent').textContent = fmtMoney(totHistSpent);
+
+        document.getElementById('poolHint1').textContent = fmtMoney(generalAvailable);
+        document.getElementById('poolHint2').textContent = fmtMoney(generalAvailable);
+        document.getElementById('topupAmount').max = generalAvailable;
+        document.getElementById('newDeptCustody').max = generalAvailable;
+
+        const topupSel = document.getElementById('topupDeptSelect');
+        const filterSel = document.getElementById('adminDeptFilter');
+        const curFilter = filterSel.value;
+
+        topupSel.innerHTML = actualDepts.map(d => `<option value="${esc(d.name)}">${esc(d.name)}</option>`).join('');
+        filterSel.innerHTML = '<option value="ALL">عرض كل الأقسام</option>' +
+            allDepts.map(d => `<option value="${esc(d.name)}">${esc(d.name)}</option>`).join('');
+        if ([...filterSel.options].some(o => o.value === curFilter)) filterSel.value = curFilter;
+
+        const dBody = document.getElementById('adminDeptsBody');
+        dBody.innerHTML = actualDepts.map(d => `
+            <tr>
+                <td style="font-weight:800; color:#38bdf8;">${esc(d.name)}</td>
+                <td>
+                    ${showDeptPasswords
+                        ? `<span class="pass-pill" title="اضغط لنسخ الباسوورد" onclick="copyText('${esc(d.password)}')">${esc(d.password)} 📋</span>`
+                        : `<span class="pass-masked">••••••••</span>`
+                    }
+                </td>
+                <td style="font-weight:700;">${fmtMoney(d.activeCustody)}</td>
+                <td style="color:#fbbf24; font-weight:700;">${fmtMoney(d.activeSpent)}</td>
+                <td style="color:${d.remaining < 0 ? '#f87171' : '#34d399'}; font-weight:800;">${fmtMoney(d.remaining)}</td>
+                <td>${d.enforceLimit ? '🔒 مقفول' : '🔓 مفتوح'}</td>
+                <td style="color:#94a3b8;">${fmtMoney(d.historicalCustody)}</td>
+                <td style="color:#c084fc; font-weight:700;">${fmtMoney(d.historicalSpent)}</td>
+                <td><span class="badge ${d.status === 'تمت التصفية' ? 'badge-settled' : 'badge-active'}">${esc(d.status)}</span></td>
+                <td>
+                    <button class="btn btn-amber btn-sm" onclick="settleDepartment('${esc(d.name)}', this)">🏁 إنهاء وتصفية</button>
+                </td>
+            </tr>
+        `).join('');
+
+        validatePoolBounds();
+        renderAdminLogs();
+    }
+
+    function openAddCustodyModal() {
+        document.getElementById('modalCustodyAmount').value = '';
+        document.getElementById('modalCustodyNote').value = '';
+        document.getElementById('addCustodyModal').classList.remove('hidden');
+        setTimeout(() => document.getElementById('modalCustodyAmount').focus(), 50);
+    }
+
+    function closeAddCustodyModal() {
+        document.getElementById('addCustodyModal').classList.add('hidden');
+    }
+
+    async function submitSingleAddCustody() {
+        const amount = parseFloat(document.getElementById('modalCustodyAmount').value);
+        const note = document.getElementById('modalCustodyNote').value.trim();
+        const btn = document.getElementById('modalSubmitCustodyBtn');
+
+        if (isNaN(amount) || amount <= 0) {
+            alert('⚠️ يرجى إدخال مبلغ صحيح أكبر من صفر.');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = '⏳ جاري إضافة المبلغ...';
+
+        try {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'updateCustodyLimit',
+                    adminPass: adminPassSession,
+                    department: GENERAL_CUSTODY_KEY,
+                    amount,
+                    enforceLimit: true,
+                    note: note || 'إضافة مبلغ لإجمالي العهدة'
+                })
+            });
+            const data = await res.json();
+            if (!data.ok) {
+                alert('⚠️ ' + (data.error || 'تعذر إضافة المبلغ'));
+            } else {
+                closeAddCustodyModal();
+                alert(`✅ تم إضافة ${amount} ج.م لإجمالي العهدة بنجاح!`);
+                adminCache = data;
+                renderAdminAll();
+            }
+        } catch (e) {
+            alert('⚠️ تعذر الاتصال بالسيرفر.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '➕ إضافة مبلغ للعهدة';
+        }
+    }
+
+    function renderAdminLogs() {
+        const f = document.getElementById('adminDeptFilter').value;
+
+        const actList = (adminCache.activeExpenses || []).filter(x => f === 'ALL' || x.department === f);
+        document.getElementById('adminActiveExpBody').innerHTML = actList.length
+            ? actList.map(e => `
+                <tr>
+                    <td><span class="badge badge-dept">${esc(e.department)}</span></td>
+                    <td style="font-weight:700;">${esc(e.servantName)}</td>
+                    <td style="color:#fbbf24; font-weight:700;">${fmtMoney(e.amount)}</td>
+                    <td>${esc(e.description)}</td>
+                    <td>${e.receiptUrl ? `<a href="${esc(e.receiptUrl)}" target="_blank" class="receipt-link">عرض الفاتورة 🖼️</a>` : '-'}</td>
+                    <td style="color:#94a3b8;">${esc(e.date)}</td>
+                </tr>
+            `).join('')
+            : '<tr><td colspan="6" style="color:#94a3b8;">لا توجد مصروفات نشطة.</td></tr>';
+
+        const archList = (adminCache.archive || []).filter(x => f === 'ALL' || x.department === f);
+        document.getElementById('adminArchiveBody').innerHTML = archList.length
+            ? archList.map(a => `
+                <tr>
+                    <td style="font-family:monospace; color:#94a3b8;">${esc(a.settlementId)}</td>
+                    <td><span class="badge badge-dept">${esc(a.department)}</span></td>
+                    <td style="font-weight:700;">${esc(a.servantName)}</td>
+                    <td style="color:#c084fc; font-weight:700;">${fmtMoney(a.amount)}</td>
+                    <td>${esc(a.description)}</td>
+                    <td>${a.receiptUrl ? `<a href="${esc(a.receiptUrl)}" target="_blank" class="receipt-link">عرض الفاتورة 🖼️</a>` : '-'}</td>
+                    <td style="color:#94a3b8;">${esc(a.expenseDate)}</td>
+                    <td style="color:#fbbf24;">${esc(a.settlementDate)}</td>
+                </tr>
+            `).join('')
+            : '<tr><td colspan="8" style="color:#94a3b8;">لا توجد سجلات في الأرشيف بعد.</td></tr>';
+
+        const topList = (adminCache.topups || []).filter(x => f === 'ALL' || x.department === f);
+        document.getElementById('adminTopupsBody').innerHTML = topList.length
+            ? topList.map(t => `
+                <tr>
+                    <td style="color:#94a3b8;">${esc(t.date)}</td>
+                    <td><span class="badge badge-dept">${esc(t.department)}</span></td>
+                    <td style="font-weight:700; color:#38bdf8;">${esc(t.type)}</td>
+                    <td style="font-weight:700; color:#34d399;">${fmtMoney(t.amount)}</td>
+                    <td>${esc(t.note)}</td>
+                </tr>
+            `).join('')
+            : '<tr><td colspan="5" style="color:#94a3b8;">لا توجد حركات مسجلة.</td></tr>';
+    }
+
+    function switchAdminSubTab(tab, btn) {
+        document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('subTabActive').classList.toggle('hidden', tab !== 'active');
+        document.getElementById('subTabArchive').classList.toggle('hidden', tab !== 'archive');
+        document.getElementById('subTabTopups').classList.toggle('hidden', tab !== 'topups');
+        document.getElementById('printArchivePdfBtn').classList.toggle('hidden', tab !== 'archive');
+    }
+
+    function printArchiveWithoutSerial() {
+        const f = document.getElementById('adminDeptFilter').value;
+        const archList = (adminCache.archive || []).filter(x => f === 'ALL' || x.department === f);
+
+        if (!archList.length) {
+            alert('⚠️ لا توجد بيانات في الأرشيف المالي للطباعة حسب الفلتر الحالي.');
+            return;
+        }
+
+        const totalAmount = archList.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+        const deptLabel = f === 'ALL' ? 'كل الأقسام' : f;
+        const printedAt = new Date().toLocaleString('ar-EG');
+
+        document.getElementById('printMetaText').textContent =
+            `القسم: ${deptLabel} | عدد القيود: ${archList.length} | تاريخ الطباعة: ${printedAt}`;
+        document.getElementById('printTotalBox').textContent =
+            `التوتال الإجمالي: ${fmtMoney(totalAmount)}`;
+
+        document.getElementById('printArchiveBody').innerHTML = archList.map(a => `
+            <tr>
+                <td>${esc(a.department)}</td>
+                <td>${esc(a.servantName)}</td>
+                <td>${fmtMoney(a.amount)}</td>
+                <td>${esc(a.description)}</td>
+                <td>${a.receiptUrl ? 'مرفقة' : '-'}</td>
+                <td>${esc(a.expenseDate)}</td>
+                <td>${esc(a.settlementDate)}</td>
+            </tr>
+        `).join('');
+
+        window.print();
+    }
+
+    async function createDepartment() {
+        const name = document.getElementById('newDeptName').value.trim();
+        const password = document.getElementById('newDeptPass').value.trim();
+        const initialCustody = parseFloat(document.getElementById('newDeptCustody').value) || 0;
+        const enforceLimit = document.getElementById('newDeptEnforce').checked;
+        const btn = document.getElementById('createDeptBtn');
+
+        if (!name || !password) {
+            alert('⚠️ أدخل اسم الشيت/القسم وكلمة المرور الخاصة به.');
+            return;
+        }
+
+        const generalAvailable = getGeneralPoolAvailable();
+        if (initialCustody > generalAvailable) {
+            alert(`❌ لا يمكن سحب ${initialCustody} ج.م للقسم لأن المتاح في إجمالي العهدة للسحب للأقسام هو ${generalAvailable} ج.م فقط!`);
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = '⏳ جاري الإنشاء...';
+
+        try {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'createDepartment',
+                    adminPass: adminPassSession,
+                    name,
+                    password,
+                    initialCustody,
+                    enforceLimit
+                })
+            });
+            const data = await res.json();
+            if (!data.ok) {
+                alert('⚠️ ' + (data.error || 'تعذر إنشاء القسم'));
+            } else {
+                alert(`✅ تم إنشاء شيت قسم "${name}" وسحب العهدة من الإجمالي بنجاح!`);
+                document.getElementById('newDeptName').value = '';
+                document.getElementById('newDeptPass').value = '';
+                document.getElementById('newDeptCustody').value = '';
+                adminCache = data;
+                renderAdminAll();
+                fetchPublicDepartments();
+            }
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '✨ إنشاء الشيت وسحب العهدة من الإجمالي';
+        }
+    }
+
+    async function addAmountToDeptSheet() {
+        const department = document.getElementById('topupDeptSelect').value;
+        const amount = parseFloat(document.getElementById('topupAmount').value);
+        const note = document.getElementById('topupNote').value.trim();
+        const enforceLimit = document.getElementById('editDeptEnforce').checked;
+        const btn = document.getElementById('addCustodyBtn');
+
+        if (!department || isNaN(amount) || amount <= 0) {
+            alert('⚠️ اختر شيت القسم وأدخل مبلغاً صحيحاً أكبر من صفر.');
+            return;
+        }
+
+        const generalAvailable = getGeneralPoolAvailable();
+        if (amount > generalAvailable) {
+            alert(`❌ لا يمكن سحب ${amount} ج.م لشيت "${department}" لأن المتاح في إجمالي العهدة للسحب للأقسام هو ${generalAvailable} ج.م فقط!`);
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = '⏳ جاري السحب للشيت...';
+
+        try {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'updateCustodyLimit',
+                    adminPass: adminPassSession,
+                    department,
+                    amount,
+                    enforceLimit,
+                    note
+                })
+            });
+            const data = await res.json();
+            if (!data.ok) {
+                alert('⚠️ ' + (data.error || 'حدث خطأ'));
+            } else {
+                alert(`✅ تم إضافة ${amount} ج.م إلى شيت "${department}" وخصمها من إجمالي العهدة بنجاح!`);
+                document.getElementById('topupAmount').value = '';
+                document.getElementById('topupNote').value = '';
+                adminCache = data;
+                renderAdminAll();
+            }
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '➕ إضافة مبلغ للشيت (خصم من إجمالي العهدة)';
+        }
+    }
+
+    async function settleDepartment(deptName, btn) {
+        if (!confirm(`⚠️ تأكيد إنهاء وتصفية قسم "${deptName}"؟\n\nسيتم:\n1. تصفير العهدة والمصروفات عند اليوزر في شيت "${deptName}" (لتصبح 0) وإرجاع أي فائض غير مصروف إلى إجمالي العهدة.\n2. ترحيل كافة مصروفات وفواتير هذه الدورة إلى الأرشيف المالي عند الأدمن فقط.`)) {
+            return;
+        }
+        btn.disabled = true;
+        btn.textContent = '⏳...';
+
+        try {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'settleDepartment',
+                    adminPass: adminPassSession,
+                    department: deptName
+                })
+            });
+            const data = await res.json();
+            if (!data.ok) {
+                alert('⚠️ ' + (data.error || 'تعذر تنفيذ التصفية'));
+            } else {
+                alert(`✅ تمت تصفية قسم "${deptName}" وترحيل حساباته للأرشيف بنجاح!`);
+                adminCache = data;
+                renderAdminAll();
+                fetchPublicDepartments();
+            }
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '🏁 إنهاء وتصفية';
+        }
+    }
+
+    function copyText(txt) {
+        navigator.clipboard?.writeText(txt);
+        alert('📋 تم نسخ كلمة المرور: ' + txt);
+    }
+
+    function logoutAdmin() {
+        adminPassSession = '';
+        sessionStorage.removeItem('kafela_exp_admin');
+        document.getElementById('adminDashboard').classList.add('hidden');
+        document.getElementById('adminLoginCard').classList.remove('hidden');
+    }
+
+    fetchPublicDepartments();
+</script>
+</body>
+</html>
